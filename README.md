@@ -7,7 +7,9 @@ Port of awesome_print for Ruby: https://github.com/michaeldv/awesome_print
 Install:
 --------
 
-    pip install awesome_print
+    git clone https://github.com/kmmoore/awesome_print
+    cd awesome_print
+    python setup.py install
 
 
 Usage & Tests:
