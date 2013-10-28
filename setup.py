@@ -2,14 +2,14 @@ from distutils.core import setup
 
 setup(
     name='awesome_print',
-    version='0.1.3',
-    author='Stan Mazhara',
-    author_email='akmegran@gmail.com',
+    version='0.1.4',
+    author='Kyle Moore',
+    author_email='mynameskyle@gmail.com',
     packages=['awesome_print', 'awesome_print.test'],
     license='LICENSE',
     description='Awesome print.',
     long_description=open('README.txt').read(),
-    url='https://github.com/smazhara/awesome_print',
+    url='https://github.com/kmmoore/awesome_print',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',

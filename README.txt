@@ -1,12 +1,19 @@
-https://github.com/michaeldv/awesome_print port
+Fork of https://github.com/smazhara/awesome_print to add Unicode support
 
-Install
+Original code by Stan Mazhara
 
-pip install awesome_print
+Port of awesome_print for Ruby: https://github.com/michaeldv/awesome_print
 
-Usage examples and tests::
+Install:
+--------
 
-    git clone https://github.com/smazhara/awesome_print
+    pip install awesome_print
+
+
+Usage & Tests:
+--------------
+
+    git clone https://github.com/kmmoore/awesome_print
     cd awesome_print
     ./example.py
     python awesome_print/test/awesome_print_test.py
