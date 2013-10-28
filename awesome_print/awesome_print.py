@@ -26,13 +26,13 @@ def format(obj, level = 0):
         pass
 
     if type is BooleanType:
-        return green(str(obj))
+        return green(unicode(obj))
 
     if type in [StringType, UnicodeType]:
-        return yellow(str(obj))
+        return yellow(unicode(obj))
 
     if type in [IntType, LongType, FloatType, ComplexType]:
-        return bold_blue(str(obj))
+        return bold_blue(unicode(obj))
 
     if type in (TupleType, ListType):
         open, close = ('(', ')') if type is TupleType else ('[', ']')
@@ -41,7 +41,7 @@ def format(obj, level = 0):
 
         s = []
         i = 0
-        width = str(len(str(len(obj))))
+        width = unicode(len(unicode(len(obj))))
         for e in obj:
             s.append(('%s[%' + width + 'd] %s') % \
                     (indent(level + 1), i, format(e, level + 1)))
@@ -55,7 +55,7 @@ def format(obj, level = 0):
         if len(obj) is 0:
             return '{}'
 
-        width = str(max([flen(format(k)) for k in obj.keys()]))
+        width = unicode(max([flen(format(k)) for k in obj.keys()]))
         s = []
         for k in obj.keys():
             v = obj[k]
@@ -67,9 +67,9 @@ def format(obj, level = 0):
                "\n" + indent(level) + '}'
 
     if type is LambdaType:
-        return str(obj)
+        return unicode(obj)
 
-    return str(obj)
+    return unicode(obj)
 
 def flen(str):
     return max(len(s) for s in str.split("\n"))
