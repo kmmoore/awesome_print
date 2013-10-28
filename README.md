@@ -15,8 +15,10 @@ Install:
 Usage:
 ------
 
-    from awesome_print import ap
-    ap(object)
+```Python
+from awesome_print import ap
+ap(object)
+```
 
 
 Tests:
