@@ -7,9 +7,11 @@ Port of awesome_print for Ruby: https://github.com/michaeldv/awesome_print
 Install:
 --------
 
-    git clone https://github.com/kmmoore/awesome_print
-    cd awesome_print
-    python setup.py install
+```Bash
+git clone https://github.com/kmmoore/awesome_print
+cd awesome_print
+python setup.py install
+```
 
 
 Usage:
@@ -24,7 +26,9 @@ ap(object)
 Tests:
 --------------
 
-    git clone https://github.com/kmmoore/awesome_print
-    cd awesome_print
-    ./example.py
-    python awesome_print/test/awesome_print_test.py
+```Bash
+git clone https://github.com/kmmoore/awesome_print
+cd awesome_print
+./example.py
+python awesome_print/test/awesome_print_test.py
+```
