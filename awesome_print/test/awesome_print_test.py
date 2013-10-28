@@ -22,6 +22,9 @@ class Test_awesome_print(unittest.TestCase):
     def test_String_with_escapes(self):
         self.assertEqual(format("with\n's"), '\x1b[0;33mwith\n\'s\x1b[0m')
 
+    # def test_String_unicode(self):
+    #     self.assertEqual(format(u'plain \u2014 string'), u'\x1b[0;33mplain \u2014 string\x1b[0m')
+
     def test_Int_positive(self):
         self.assertEqual(format(12345), '\x1b[1;34m12345\x1b[0m')
 
@@ -86,8 +89,8 @@ class Test_awesome_print(unittest.TestCase):
     def test_Dict_mixed(self):
         self.assertEqual(format({None:False,'key':'value',2:5}),
                 '{\n' +
-                '  \x1b[0;31mNone\x1b[0m: \x1b[1;32mFalse\x1b[0m,\n' +
                 '     \x1b[1;34m2\x1b[0m: \x1b[1;34m5\x1b[0m,\n' +
+                '  \x1b[0;31mNone\x1b[0m: \x1b[1;32mFalse\x1b[0m,\n' +
                 '   \x1b[0;33mkey\x1b[0m: \x1b[0;33mvalue\x1b[0m\n' +
                 '}')
 
