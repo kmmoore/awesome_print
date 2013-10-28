@@ -12,7 +12,14 @@ Install:
     python setup.py install
 
 
-Usage & Tests:
+Usage:
+------
+
+    from awesome_print import ap
+    ap(object)
+
+
+Tests:
 --------------
 
     git clone https://github.com/kmmoore/awesome_print
