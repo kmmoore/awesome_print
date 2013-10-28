@@ -7,16 +7,42 @@ Usage:
 import __builtin__
 from types import *
 
-mode = 'ansi'
+def ap(*args, **kwargs):
+    options = {
+        'indent'     : 2,      # Indent using 4 spaces.
+        'index'      : True,   # Display array indices.
+        'html'       : False,  # Use ANSI color codes rather than HTML.
+        'multiline'  : True,   # Display in multiple lines.
+        'plain'      : False,  # Use colors.
+        'raw'        : False,  # Do not recursively format object instance variables.
+        'sort_keys'  : False,  # Do not sort hash keys.
+        'limit'      : False,  # Limit large output for arrays and hashes. Set to a boolean or integer.
+    }
 
-def ap(*args):
+    if 'options' in kwargs:
+        options.update(kwargs['options'])
+
     for arg in args:
-        print format(arg)
+        print format(arg, options)
 
-def indent(level):
-    return '  ' * level
+def indent(level, options):
+    if options['html']:
+        space = '&nbsp;'
+    else:
+        space = ' '
 
-def format(obj, level = 0):
+    return space * options['indent'] * level
+
+def newline(options):
+    if not options['multiline']:
+        return ' '
+
+    if options['html']:
+        return '<br>'
+
+    return "\n"
+
+def format(obj, options, level = 0):
     type = __builtin__.type(obj)
 
     if type is NoneType:
@@ -35,36 +61,38 @@ def format(obj, level = 0):
         return bold_blue(unicode(obj))
 
     if type in (TupleType, ListType):
-        open, close = ('(', ')') if type is TupleType else ('[', ']')
+        open_char, close_char = ('(', ')') if type is TupleType else ('[', ']')
         if len(obj) is 0:
-            return open + close
+            return open_char + close_char
 
-        s = []
-        i = 0
-        width = unicode(len(unicode(len(obj))))
-        for e in obj:
-            s.append(('%s[%' + width + 'd] %s') % \
-                    (indent(level + 1), i, format(e, level + 1)))
-            i+=1
+        lines = []
+        index = 0
+        width = str(len(str(len(obj))))
+        for i, value in enumerate(obj):
+            index_str = ''
+            if options['index']:
+                index_str = ('[%' + width + 'd] ') % i
 
-        return open + "\n" + \
-                        ",\n".join(s) + \
-               "\n" + indent(level) + close
+            lines.append(('%s%s%s') % (indent(level + 1, options), index_str, format(value, options, level + 1)))
+
+        return open_char + newline(options) + \
+               ("," + newline(options)).join(lines) + \
+               newline(options) + indent(level, options) + close_char
 
     if type is DictType:
         if len(obj) is 0:
             return '{}'
 
-        width = unicode(max([flen(format(k)) for k in obj.keys()]))
+        width = str(max([flen(format(k, options)) for k in obj.keys()]))
         s = []
         for k in obj.keys():
             v = obj[k]
             s.append(('%s%' + width + 's: %s') % \
-                    (indent(level + 1), format(k), format(v, level + 1)))
+                    (indent(level + 1, options), format(k, options), format(v, options, level + 1)))
 
-        return '{' + "\n" + \
-                        ",\n".join(s) + \
-               "\n" + indent(level) + '}'
+        return '{' + newline(options) + \
+                        ("," + newline(options)).join(s) + \
+               newline(options) + indent(level, options) + '}'
 
     if type is LambdaType:
         return unicode(obj)
@@ -123,11 +151,11 @@ def white(str):
     return bold(str, '37')
 
 def color(str, color, intensity='0'):
-    if mode == 'plain':
-    	return str
+    # if mode == 'plain':
+    # 	return str
     return '\033['+intensity+';'+color+'m'+str+'\033[0m'
 
 def bold(str, col):
-    if mode == 'plain':
-    	return str
+    # if mode == 'plain':
+    # 	return str
     return color(str, col, '1')
