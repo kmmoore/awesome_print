@@ -8,7 +8,7 @@ setup(
     packages=['awesome_print', 'awesome_print.test'],
     license='LICENSE',
     description='Awesome print.',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     url='https://github.com/kmmoore/awesome_print',
     classifiers=[
         'Development Status :: 4 - Beta',
