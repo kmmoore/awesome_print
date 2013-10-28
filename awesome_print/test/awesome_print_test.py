@@ -22,8 +22,8 @@ class Test_awesome_print(unittest.TestCase):
     def test_String_with_escapes(self):
         self.assertEqual(format("with\n's"), '\x1b[0;33mwith\n\'s\x1b[0m')
 
-    # def test_String_unicode(self):
-    #     self.assertEqual(format(u'plain \u2014 string'), u'\x1b[0;33mplain \u2014 string\x1b[0m')
+    def test_String_unicode(self):
+        self.assertEqual(format(u'plain \u2014 string'), u'\x1b[0;33mplain \u2014 string\x1b[0m')
 
     def test_Int_positive(self):
         self.assertEqual(format(12345), '\x1b[1;34m12345\x1b[0m')
