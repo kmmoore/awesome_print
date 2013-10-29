@@ -45,19 +45,19 @@ def format(obj, options, level = 0):
     type = __builtin__.type(obj)
 
     if type is NoneType:
-        return red('None')
+        return red('None', options)
 
     if type is TypeType:
         pass
 
     if type is BooleanType:
-        return green(unicode(obj))
+        return green(unicode(obj), options)
 
     if type in [StringType, UnicodeType]:
-        return yellow(unicode(obj))
+        return yellow(unicode(obj), options)
 
     if type in [IntType, LongType, FloatType, ComplexType]:
-        return bold_blue(unicode(obj))
+        return bold_blue(unicode(obj), options)
 
     if type in (TupleType, ListType):
         open_char, close_char = ('(', ')') if type is TupleType else ('[', ']')
@@ -106,60 +106,60 @@ def format(obj, options, level = 0):
 def max_line_len(str):
     return max(len(line) for line in str.split("\n"))
 
-def black(str):
-    return color(str, '30')
+def black(str, options):
+    return color(str, '30', options)
 
-def dark_gray(str):
-    return bold(str, '30')
+def dark_gray(str, options):
+    return bold(str, '30', options)
 
-def red(str):
-    return color(str, '31')
+def red(str, options):
+    return color(str, '31', options)
 
-def bold_red(str):
-    return bold(str, '31')
+def bold_red(str, options):
+    return bold(str, '31', options)
 
-def green(str):
-    return color(str, '32')
+def green(str, options):
+    return color(str, '32', options)
 
-def green(str):
-    return bold(str, '32')
+def green(str, options):
+    return bold(str, '32', options)
 
-def yellow(str):
-    return color(str, '33')
+def yellow(str, options):
+    return color(str, '33', options)
 
-def bold_yellow(str):
-    return bold(str, '33')
+def bold_yellow(str, options):
+    return bold(str, '33', options)
 
-def blue(str):
-    return color(str, '34')
+def blue(str, options):
+    return color(str, '34', options)
 
-def bold_blue(str):
-    return bold(str, '34')
+def bold_blue(str, options):
+    return bold(str, '34', options)
 
-def purple(str):
-    return color(str, '35')
+def purple(str, options):
+    return color(str, '35', options)
 
-def bold_purple(str):
-    return bold(str, '35')
+def bold_purple(str, options):
+    return bold(str, '35', options)
 
-def cyan(str):
-    return color(str, '36')
+def cyan(str, options):
+    return color(str, '36', options)
 
-def bold_cyan(str):
-    return bold(str, '36')
+def bold_cyan(str, options):
+    return bold(str, '36', options)
 
-def light_gray(str):
-    return color(str, '37')
+def light_gray(str, options):
+    return color(str, '37', options)
 
-def white(str):
-    return bold(str, '37')
+def white(str, options):
+    return bold(str, '37', options)
 
-def color(str, color, intensity='0'):
-    # if mode == 'plain':
-    # 	return str
+def color(str, color, options, intensity='0'):
+    if options['plain']:
+    	return str
     return '\033['+intensity+';'+color+'m'+str+'\033[0m'
 
-def bold(str, col):
-    # if mode == 'plain':
-    # 	return str
-    return color(str, col, '1')
+def bold(str, col, options):
+    if options['plain']:
+    	return str
+    return color(str, col, options, '1')
