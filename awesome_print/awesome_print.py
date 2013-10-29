@@ -14,7 +14,6 @@ def ap(*args, **kwargs):
         'html'       : False,  # Use ANSI color codes rather than HTML.
         'multiline'  : True,   # Display in multiple lines.
         'plain'      : False,  # Use colors.
-        'raw'        : False,  # Do not recursively format object instance variables.
         'sort_keys'  : False,  # Do not sort hash keys.
         'limit'      : False,  # Limit large output for arrays and hashes. Set to a boolean or integer.
     }
@@ -83,15 +82,20 @@ def format(obj, options, level = 0):
         if len(obj) is 0:
             return '{}'
 
-        width = str(max([flen(format(k, options)) for k in obj.keys()]))
-        s = []
-        for k in obj.keys():
-            v = obj[k]
-            s.append(('%s%' + width + 's: %s') % \
-                    (indent(level + 1, options), format(k, options), format(v, options, level + 1)))
+        width = str(max(max_line_len(format(k, options)) for k in obj.keys()))
+        lines = []
+
+        keys = obj.keys()
+        if options['sort_keys']:
+            keys = sorted(keys)
+
+        for key in keys:
+            value = obj[key]
+            lines.append(('%s%' + width + 's: %s') % \
+                    (indent(level + 1, options), format(key, options), format(value, options, level + 1)))
 
         return '{' + newline(options) + \
-                        ("," + newline(options)).join(s) + \
+                        ("," + newline(options)).join(lines) + \
                newline(options) + indent(level, options) + '}'
 
     if type is LambdaType:
@@ -99,8 +103,8 @@ def format(obj, options, level = 0):
 
     return unicode(obj)
 
-def flen(str):
-    return max(len(s) for s in str.split("\n"))
+def max_line_len(str):
+    return max(len(line) for line in str.split("\n"))
 
 def black(str):
     return color(str, '30')
