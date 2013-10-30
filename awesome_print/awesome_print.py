@@ -7,9 +7,12 @@ Usage:
 import __builtin__
 from types import *
 
+STRING_TYPES = (StringType, UnicodeType)
+NUMBER_TYPES = (IntType, LongType, FloatType, ComplexType)
+
 def ap(*args, **kwargs):
     options = {
-        'indent'     : 2,      # Indent using 4 spaces.
+        'indent'     : 4,      # Indent using 4 spaces.
         'index'      : True,   # Display array indices.
         'html'       : False,  # Use ANSI color codes rather than HTML.
         'multiline'  : True,   # Display in multiple lines.
@@ -53,10 +56,11 @@ def format(obj, options, level = 0):
     if type is BooleanType:
         return green(unicode(obj), options)
 
-    if type in [StringType, UnicodeType]:
-        return yellow(unicode(obj), options)
+    if type in STRING_TYPES:
+        print level, obj
+        return yellow('"' + unicode(obj) + '"', options)
 
-    if type in [IntType, LongType, FloatType, ComplexType]:
+    if type in NUMBER_TYPES:
         return bold_blue(unicode(obj), options)
 
     if type in (TupleType, ListType):
@@ -70,7 +74,7 @@ def format(obj, options, level = 0):
         for i, value in enumerate(obj):
             index_str = ''
             if options['index']:
-                index_str = ('[%' + width + 'd] ') % i
+                index_str = light_gray(('[%' + width + 'd] ') % i, options)
 
             lines.append(('%s%s%s') % (indent(level + 1, options), index_str, format(value, options, level + 1)))
 
@@ -82,7 +86,7 @@ def format(obj, options, level = 0):
         if len(obj) is 0:
             return '{}'
 
-        width = str(max(max_line_len(format(k, options)) for k in obj.keys()))
+        width = max(len(str(key)) for key in obj)
         lines = []
 
         keys = obj.keys()
@@ -91,8 +95,11 @@ def format(obj, options, level = 0):
 
         for key in keys:
             value = obj[key]
-            lines.append(('%s%' + width + 's: %s') % \
-                    (indent(level + 1, options), format(key, options), format(value, options, level + 1)))
+            formatted_key = format_key(key, options)
+            format_padding = len(formatted_key) - len(str(key))
+
+            lines.append(('%s%' + str(width + format_padding) + 's %s %s') % \
+                    (indent(level + 1, options), format_key(key, options), light_gray(':', options), format(value, options, level + 1)))
 
         return '{' + newline(options) + \
                         ("," + newline(options)).join(lines) + \
@@ -102,6 +109,14 @@ def format(obj, options, level = 0):
         return unicode(obj)
 
     return unicode(obj)
+
+def format_key(key_obj, options):
+    key_type = __builtin__.type(key_obj)
+
+    if key_type in STRING_TYPES + NUMBER_TYPES:
+        return format(key_obj, options)
+
+    return str(key_obj)
 
 def max_line_len(str):
     return max(len(line) for line in str.split("\n"))
