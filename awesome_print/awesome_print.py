@@ -27,13 +27,13 @@ def ap(*args, **kwargs):
     for arg in args:
         print format(arg, options)
 
-def indent(level, options):
+def indent(level, options, additional_padding = 0):
     if options['html']:
         space = '&nbsp;'
     else:
         space = ' '
 
-    return space * options['indent'] * level
+    return space * (options['indent'] * level + additional_padding)
 
 def newline(options):
     if not options['multiline']:
@@ -44,7 +44,7 @@ def newline(options):
 
     return "\n"
 
-def format(obj, options, level = 0):
+def format(obj, options, level = 0, additional_padding = 0):
     type = __builtin__.type(obj)
 
     if type is NoneType:
@@ -57,8 +57,10 @@ def format(obj, options, level = 0):
         return green(unicode(obj), options)
 
     if type in STRING_TYPES:
-        print level, obj
-        return yellow('"' + unicode(obj) + '"', options)
+        lines = obj.split("\n")
+        line_sep = "\n " + indent(level, options, additional_padding)
+
+        return yellow('"' + line_sep.join(lines) + '"', options)
 
     if type in NUMBER_TYPES:
         return bold_blue(unicode(obj), options)
@@ -69,25 +71,26 @@ def format(obj, options, level = 0):
             return open_char + close_char
 
         lines = []
-        index = 0
-        width = str(len(str(len(obj))))
+        width = len(str(len(obj)))
+        index_len = width + 3
         for i, value in enumerate(obj):
             index_str = ''
             if options['index']:
-                index_str = light_gray(('[%' + width + 'd] ') % i, options)
+                index_str = light_gray(('[%' + str(width) + 'd] ') % i, options)
 
-            lines.append(('%s%s%s') % (indent(level + 1, options), index_str, format(value, options, level + 1)))
+            lines.append(('%s%s%s') % (indent(level + 1, options, additional_padding), index_str, format(value, options, level + 1, additional_padding + index_len)))
 
         return open_char + newline(options) + \
                ("," + newline(options)).join(lines) + \
-               newline(options) + indent(level, options) + close_char
+               newline(options) + indent(level, options, additional_padding) + close_char
 
     if type is DictType:
         if len(obj) is 0:
             return '{}'
 
-        width = max(len(str(key)) for key in obj)
         lines = []
+        width = max(formatted_key_len(key, options) for key in obj)
+        key_len = width + 3
 
         keys = obj.keys()
         if options['sort_keys']:
@@ -95,15 +98,19 @@ def format(obj, options, level = 0):
 
         for key in keys:
             value = obj[key]
-            formatted_key = format_key(key, options)
-            format_padding = len(formatted_key) - len(str(key))
 
-            lines.append(('%s%' + str(width + format_padding) + 's %s %s') % \
-                    (indent(level + 1, options), format_key(key, options), light_gray(':', options), format(value, options, level + 1)))
+            formatted_key = format_key(key, options)
+            format_padding = len(formatted_key) - formatted_key_len(key, options)
+
+            key_line_format_str = '%s%' + str(width + format_padding) + 's'
+            key_str = newline(options).join((key_line_format_str % (indent(level + 1, options, additional_padding), k)) for k in formatted_key.split("\n"))
+
+            lines.append(('%s %s %s') % \
+                    (key_str, light_gray(':', options), format(value, options, level + 1, additional_padding + key_len)))
 
         return '{' + newline(options) + \
                         ("," + newline(options)).join(lines) + \
-               newline(options) + indent(level, options) + '}'
+               newline(options) + indent(level, options, additional_padding) + '}'
 
     if type is LambdaType:
         return unicode(obj)
@@ -111,6 +118,8 @@ def format(obj, options, level = 0):
     return unicode(obj)
 
 def format_key(key_obj, options):
+    """ Returns the formatted representation of `key_obj` when it is a key in a dictionary. """
+
     key_type = __builtin__.type(key_obj)
 
     if key_type in STRING_TYPES + NUMBER_TYPES:
@@ -118,8 +127,13 @@ def format_key(key_obj, options):
 
     return str(key_obj)
 
-def max_line_len(str):
-    return max(len(line) for line in str.split("\n"))
+def formatted_key_len(obj, options):
+    """ Returns the length of the formatted key (without the ANSI color code characters). """
+
+    plain_options = options.copy()
+    plain_options['plain'] = True
+
+    return len(format_key(obj, plain_options));
 
 def black(str, options):
     return color(str, '30', options)
