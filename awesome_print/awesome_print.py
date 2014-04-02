@@ -4,7 +4,6 @@ Usage:
     from awesome_print import ap
     ap(object)
 """
-import __builtin__
 from types import *
 from string_formatting import Align, Color, applyColor, indent, newline, format_key, formatted_key_width
 
@@ -44,7 +43,7 @@ def format(obj, options, level = 0, additional_padding = 0, align = Align.LEFT):
 
         if align == Align.RIGHT:
             width = max(len(l) for l in lines)
-            lines = ["{l:>{width}}".format(l=l, width=width) for l in lines]
+            lines = [u"{l:>{width}}".format(l=l, width=width) for l in lines]
 
         line_sep = newline(options) + " " + indent(level, options, additional_padding)
 
@@ -70,10 +69,10 @@ def format(obj, options, level = 0, additional_padding = 0, align = Align.LEFT):
         for i, value in enumerate(obj):
             index_str = ''
             if options['index']:
-                index_str = "[{index:>{width}}] ".format(index=i, width=index_str_width)
+                index_str = u"[{index:>{width}}] ".format(index=i, width=index_str_width)
                 index_str = applyColor(index_str, Color.White, False, options)
 
-            lines.append(('%s%s%s') % (indent(level + 1, options, additional_padding),
+            lines.append((u'%s%s%s') % (indent(level + 1, options, additional_padding),
                                        index_str,
                                        format(value, options, level + 1, additional_padding + index_len)))
 
@@ -98,11 +97,11 @@ def format(obj, options, level = 0, additional_padding = 0, align = Align.LEFT):
             value = obj[key]
 
             # Format the key
-            key_str = "{key:>{width}}".format(key=format_key(key), width=width)
+            key_str = u"{key:>{width}}".format(key=format_key(key), width=width)
             key_str = applyColor(key_str, Color.Red, True, options)
 
             # Add key and value together
-            lines.append(('%s%s %s %s') % (indent(level + 1, options, additional_padding),
+            lines.append((u'%s%s %s %s') % (indent(level + 1, options, additional_padding),
                                            key_str,
                                            applyColor(':', Color.White, False, options),
                                            format(value, options, level + 1, additional_padding + key_len)))

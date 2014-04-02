@@ -35,10 +35,10 @@ def applyColor(string, color, strong, options):
 
     if options['html']:
         tag = 'b' if strong else 'span'
-        return '<{tag} style="color:{color}">{string}</{tag}>'.format(tag=tag, color=color_value[1], string=string)
+        return u'<{tag} style="color:{color}">{string}</{tag}>'.format(tag=tag, color=color_value[1], string=string)
     else:
         intensity = '1' if strong else '0'
-        return '\033[{intensity};{code}m{string}\033[0m'.format(code=color_value[0], intensity=intensity, string=string)
+        return u'\033[{intensity};{code}m{string}\033[0m'.format(code=color_value[0], intensity=intensity, string=string)
 
 
 def indent(level, options, additional_padding = 0):
