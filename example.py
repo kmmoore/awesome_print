@@ -1,12 +1,17 @@
 #!/usr/bin/env python
+
+from types import *
 from awesome_print import ap
 
 objects = [
+        ["abc\ndef", {(1,2) : (1,2,3,4,5,6,7,8,9,10,11)}],
         None,
+        BooleanType,
         True,
         "Hello, World!",
         65535,
         3.1415926,
+        (1,2,3,4,5,6,7,8,9,10,11),
         [1,2,3,4,5],
         {'one': 1, 'two': 2, 'ten': 10},
         {

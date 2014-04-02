@@ -2,21 +2,6 @@ def enum(*sequential, **named):
     enums = dict(zip(sequential, range(len(sequential))), **named)
     return type('Enum', (), enums)
 
-Color = enum('DEFAULT', 'BLACK', 'WHITE', 'DARK_GREY', 'LIGHT_GREY', 'RED', 'BOLD_RED', 'GREEN', 'BOLD_GREEN', 'YELLOW', 'BOLD_YELLOW', 'BLUE', 'BOLD_BLUE', 'PURPLE', 'BOLD_PURPLE', 'CYAN', 'BOLD_CYAN', 'NONE')
-Align = enum('RIGHT', 'LEFT', 'CENTER')
-
-ansi_color_map = ((0,0), (30,0), (37,1), (30,1), (37,0), (31,0), (31,1), (32,0), (32,1), (33,0), (33,1), (34,0), (34,1), (35,0), (35,1), (36,0), (36,1))
-
-def applyColor(string, color, options):
-    if options['plain']:
-        return string
-    
-    if color == Color.NONE:
-        return string
-
-    mapped = ansi_color_map[color]
-
-    return '\033['+str(mapped[1])+';'+str(mapped[0])+'m'+string+'\033[0m'
 
 
 class FormattedString():
