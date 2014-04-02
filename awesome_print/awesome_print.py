@@ -6,13 +6,20 @@ Usage:
 """
 import __builtin__
 from types import *
+from formatted_string import applyColor, FormattedString, FormattedBlock, Color
+
+def enum(*sequential, **named):
+    enums = dict(zip(sequential, range(len(sequential))), **named)
+    return type('Enum', (), enums)
+
+Align = enum('RIGHT', 'LEFT')
 
 STRING_TYPES = (StringType, UnicodeType)
 NUMBER_TYPES = (IntType, LongType, FloatType, ComplexType)
 
 def ap(*args, **kwargs):
     options = {
-        'indent'     : 4,      # Indent using 4 spaces.
+        'indent'     : 2,      # Indent using 4 spaces.
         'index'      : True,   # Display array indices.
         'html'       : False,  # Use ANSI color codes rather than HTML.
         'multiline'  : True,   # Display in multiple lines.
@@ -44,26 +51,32 @@ def newline(options):
 
     return "\n"
 
-def format(obj, options, level = 0, additional_padding = 0):
+def format(obj, options, level = 0, additional_padding = 0, align = Align.LEFT):
     type = __builtin__.type(obj)
 
     if type is NoneType:
-        return red('None', options)
+        return applyColor('None', Color.PURPLE, options)
 
     if type is TypeType:
         pass
 
     if type is BooleanType:
-        return green(unicode(obj), options)
+        applyColor(unicode(obj), Color.GREEN, options)
 
     if type in STRING_TYPES:
-        lines = obj.split("\n")
-        line_sep = "\n " + indent(level, options, additional_padding)
+        lines = ('"' + obj + '"').split("\n")
 
-        return yellow('"' + line_sep.join(lines) + '"', options)
+
+        if align == Align.RIGHT:
+            width = max(len(l) for l in lines)
+            lines = ["{l:>{width}}".format(l=l, width=width) for l in lines]
+
+        line_sep = newline(options) + " " + indent(level, options, additional_padding)
+
+        return line_sep.join(applyColor(l, Color.YELLOW, options) for l in lines)
 
     if type in NUMBER_TYPES:
-        return bold_blue(unicode(obj), options)
+        return applyColor(unicode(obj), Color.BOLD_BLUE, options)
 
     if type in (TupleType, ListType):
         open_char, close_char = ('(', ')') if type is TupleType else ('[', ']')
@@ -71,12 +84,12 @@ def format(obj, options, level = 0, additional_padding = 0):
             return open_char + close_char
 
         lines = []
-        width = len(str(len(obj)))
+        width = len(str(len(obj)-1))
         index_len = width + 3
         for i, value in enumerate(obj):
             index_str = ''
             if options['index']:
-                index_str = light_gray(('[%' + str(width) + 'd] ') % i, options)
+                index_str = applyColor(('[%' + str(width) + 'd] ') % i, Color.LIGHT_GREY, options)
 
             lines.append(('%s%s%s') % (indent(level + 1, options, additional_padding), index_str, format(value, options, level + 1, additional_padding + index_len)))
 
@@ -84,12 +97,12 @@ def format(obj, options, level = 0, additional_padding = 0):
                ("," + newline(options)).join(lines) + \
                newline(options) + indent(level, options, additional_padding) + close_char
 
-    if type is DictType:
+    if isinstance(obj, DictType):
         if len(obj) is 0:
             return '{}'
 
         lines = []
-        width = max(formatted_key_len(key, options) for key in obj)
+        width = max(formatted_key_width(key, options) for key in obj)
         key_len = width + 3
 
         keys = obj.keys()
@@ -98,15 +111,11 @@ def format(obj, options, level = 0, additional_padding = 0):
 
         for key in keys:
             value = obj[key]
+            key_str = "{key:>{width}}".format(key=format_key(key, options), width=width)
+            key_str = applyColor(key_str, Color.BOLD_RED, options)
 
-            formatted_key = format_key(key, options)
-            format_padding = len(formatted_key) - formatted_key_len(key, options)
-
-            key_line_format_str = '%s%' + str(width + format_padding) + 's'
-            key_str = newline(options).join((key_line_format_str % (indent(level + 1, options, additional_padding), k)) for k in formatted_key.split("\n"))
-
-            lines.append(('%s %s %s') % \
-                    (key_str, light_gray(':', options), format(value, options, level + 1, additional_padding + key_len)))
+            lines.append(('%s%s %s %s') % \
+                    (indent(level + 1, options, additional_padding), key_str, applyColor(':', Color.LIGHT_GREY, options), format(value, options, level + 1, additional_padding + key_len)))
 
         return '{' + newline(options) + \
                         ("," + newline(options)).join(lines) + \
@@ -117,78 +126,20 @@ def format(obj, options, level = 0, additional_padding = 0):
 
     return unicode(obj)
 
-def format_key(key_obj, options):
+def format_key(key_obj, options, level = 0, additional_padding = 0):
     """ Returns the formatted representation of `key_obj` when it is a key in a dictionary. """
 
     key_type = __builtin__.type(key_obj)
 
-    if key_type in STRING_TYPES + NUMBER_TYPES:
-        return format(key_obj, options)
+    key_str = unicode(key_obj)
+    if key_type in STRING_TYPES:
+        key_str = '"' + key_str + '"' 
+    return key_str.replace("\n", "\\n")
 
-    return str(key_obj)
-
-def formatted_key_len(obj, options):
-    """ Returns the length of the formatted key (without the ANSI color code characters). """
+def formatted_key_width(obj, options):
+    """ Returns the width of the formatted key (without the ANSI color code characters). """
 
     plain_options = options.copy()
     plain_options['plain'] = True
 
-    return len(format_key(obj, plain_options));
-
-def black(str, options):
-    return color(str, '30', options)
-
-def dark_gray(str, options):
-    return bold(str, '30', options)
-
-def red(str, options):
-    return color(str, '31', options)
-
-def bold_red(str, options):
-    return bold(str, '31', options)
-
-def green(str, options):
-    return color(str, '32', options)
-
-def green(str, options):
-    return bold(str, '32', options)
-
-def yellow(str, options):
-    return color(str, '33', options)
-
-def bold_yellow(str, options):
-    return bold(str, '33', options)
-
-def blue(str, options):
-    return color(str, '34', options)
-
-def bold_blue(str, options):
-    return bold(str, '34', options)
-
-def purple(str, options):
-    return color(str, '35', options)
-
-def bold_purple(str, options):
-    return bold(str, '35', options)
-
-def cyan(str, options):
-    return color(str, '36', options)
-
-def bold_cyan(str, options):
-    return bold(str, '36', options)
-
-def light_gray(str, options):
-    return color(str, '37', options)
-
-def white(str, options):
-    return bold(str, '37', options)
-
-def color(str, color, options, intensity='0'):
-    if options['plain']:
-    	return str
-    return '\033['+intensity+';'+color+'m'+str+'\033[0m'
-
-def bold(str, col, options):
-    if options['plain']:
-    	return str
-    return color(str, col, options, '1')
+    return max(len(l) for l in format_key(obj, plain_options).split("\n"));
